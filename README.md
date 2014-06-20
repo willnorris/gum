@@ -13,3 +13,10 @@ a primary goal for now.  I'm primarily developing it for use on my personal
 website, so may occasionally hardcode some things that limit others' use.
 
 [Whistle]: http://tantek.com/w/Whistle
+
+## License ##
+
+Gum is copyright Google, but is not an official Google product.  It is
+available under a [BSD License][].
+
+[BSD License]: LICENSE
