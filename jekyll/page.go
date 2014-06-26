@@ -18,7 +18,8 @@ import (
 )
 
 const (
-	dateFormat = "2006-01-02 15:04:05 -0700"
+	// rubyDateFormat is the default string representation for ruby Time values
+	rubyDateFormat = "2006-01-02 15:04:05 -0700"
 )
 
 // front matter delimiter
@@ -87,7 +88,10 @@ func (p *Page) Time() time.Time {
 	// parse date from front matter
 	if d, ok := p.FrontMatter["date"]; ok {
 		if date, ok := d.(string); ok {
-			if t, err := time.Parse(dateFormat, date); err == nil {
+			if t, err := time.Parse(time.RFC3339, date); err == nil {
+				return t
+			}
+			if t, err := time.Parse(rubyDateFormat, date); err == nil {
 				return t
 			}
 		}

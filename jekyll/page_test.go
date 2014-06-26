@@ -36,27 +36,34 @@ func TestPage_ParseFrontMatter(t *testing.T) {
 
 func TestPage_Time(t *testing.T) {
 	p := new(Page)
-	var want time.Time
-
 	if got := p.Time(); !got.IsZero() {
 		t.Errorf("p.Time got: %v, want zero value", got)
 	}
 
-	// date from front matter
-	p = &Page{
-		FrontMatter: map[string]interface{}{
-			"date": "2014-05-28 13:50:27 -0700",
+	tests := []struct {
+		p    *Page
+		want time.Time
+	}{
+		// rfc3339 date from front matter
+		{
+			&Page{FrontMatter: map[string]interface{}{"date": "2014-05-28T13:50:27-07:00"}},
+			time.Date(2014, 5, 28, 13, 50, 27, 0, time.FixedZone("PDT", (-7*3600))),
+		},
+		// ruby date from front matter
+		{
+			&Page{FrontMatter: map[string]interface{}{"date": "2014-05-28 13:50:27 -0700"}},
+			time.Date(2014, 5, 28, 13, 50, 27, 0, time.FixedZone("PDT", (-7*3600))),
+		},
+		// date from filename
+		{
+			&Page{Name: "2014-05-28-test.md"},
+			time.Date(2014, 5, 28, 0, 0, 0, 0, time.UTC),
 		},
 	}
-	want = time.Date(2014, 5, 28, 13, 50, 27, 0, time.FixedZone("PDT", (-7*3600)))
-	if got := p.Time(); !got.Equal(want) {
-		t.Errorf("p.Time got: %v, want: %v", got, want)
-	}
 
-	// date from file name
-	p = &Page{Name: "2014-05-28-test.md"}
-	want = time.Date(2014, 5, 28, 0, 0, 0, 0, time.UTC)
-	if got := p.Time(); !got.Equal(want) {
-		t.Errorf("p.Time got: %v, want: %v", got, want)
+	for _, tt := range tests {
+		if got := tt.p.Time(); !got.Equal(tt.want) {
+			t.Errorf("p.Time for %v got: %v, want: %v", tt.p, got, tt.want)
+		}
 	}
 }
