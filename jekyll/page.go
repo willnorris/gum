@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -36,7 +37,7 @@ type Page struct {
 
 // NewPage parses the Jekyll file f into a new Page.
 func NewPage(f *os.File) (*Page, error) {
-	p := &Page{Name: f.Name()}
+	p := &Page{Name: filepath.Base(f.Name())}
 
 	err := p.parseFrontMatter(f)
 	if err != nil {
