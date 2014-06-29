@@ -20,7 +20,7 @@ func EpochDaysToTime(s string) time.Time {
 
 // TimeToEpochDays converts t into epoch days, encoded in newbase60.
 func TimeToEpochDays(t time.Time) string {
-	d := t.Sub(epoch) / day
+	d := t.UTC().Sub(epoch) / day
 	s := newbase60.EncodeInt(int(d))
 	return fmt.Sprintf("%03s", s)
 }
