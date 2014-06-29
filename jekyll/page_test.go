@@ -117,3 +117,38 @@ func TestPage_ShortURLs(t *testing.T) {
 		}
 	}
 }
+
+func TestPage_Permalink(t *testing.T) {
+	tests := []struct {
+		page     *Page
+		template string
+		want     string
+	}{
+		{
+			&Page{Name: "2014-06-08-test.md"},
+			"/:year/:month/:day/:title.html",
+			"/2014/06/08/test.html",
+		},
+		{
+			&Page{Name: "2014-06-08-test.md"},
+			"/:short_year/:i_month/:i_day/:title/",
+			"/14/6/8/test/",
+		},
+		{
+			&Page{
+				Name: "2014-06-08-test.md",
+				FrontMatter: map[string]interface{}{
+					"permalink": "/foo",
+				},
+			},
+			"/:short_year/:i_month/:i_day/:title",
+			"/foo",
+		},
+	}
+
+	for i, tt := range tests {
+		if got := tt.page.Permalink(tt.template); got != tt.want {
+			t.Errorf("%d. p.Permalink(%q): %v, want: %v", i, tt.template, got, tt.want)
+		}
+	}
+}

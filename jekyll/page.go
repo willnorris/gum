@@ -29,6 +29,9 @@ const (
 var delim = []byte("---\n")
 
 // Page is a jekyll page or post.
+//
+// TODO: certain functions such as Slug() (and maybe others?) make assumptions
+// that only apply to posts, not pages.
 type Page struct {
 	// Name is the file name for this page.
 	Name string
@@ -83,6 +86,13 @@ func (p *Page) parseFrontMatter(r io.Reader) error {
 	}
 
 	return nil
+}
+
+// Slug returns the slug for the page, based on the filename format:
+// YYYY-MM-DD-slug.ext.
+func (p *Page) Slug() string {
+	n := strings.TrimSuffix(p.Name, filepath.Ext(p.Name))
+	return strings.SplitN(n, "-", 4)[3]
 }
 
 // Time returns the published time of p.  It first looks for a 'date' key in
@@ -151,4 +161,26 @@ func (p *Page) ShortURLs() ([]string, error) {
 	}
 
 	return urls, nil
+}
+
+// Permalink returns the permalink path for the page.
+func (p *Page) Permalink(template string) string {
+	if perm, ok := p.FrontMatter["permalink"]; ok {
+		if s, ok := perm.(string); ok {
+			return s
+		}
+	}
+
+	t := p.Time()
+
+	u := template
+	u = strings.Replace(u, ":year", fmt.Sprint(t.Year()), -1)
+	u = strings.Replace(u, ":short_year", fmt.Sprint(t.Year()%100), -1)
+	u = strings.Replace(u, ":month", fmt.Sprintf("%02d", int(t.Month())), -1)
+	u = strings.Replace(u, ":i_month", fmt.Sprint(int(t.Month())), -1)
+	u = strings.Replace(u, ":day", fmt.Sprintf("%02d", t.Day()), -1)
+	u = strings.Replace(u, ":i_day", fmt.Sprint(t.Day()), -1)
+	u = strings.Replace(u, ":title", p.Slug(), -1)
+
+	return u
 }
