@@ -9,6 +9,7 @@ package jekyll
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -64,6 +65,55 @@ func TestPage_Time(t *testing.T) {
 	for _, tt := range tests {
 		if got := tt.p.Time(); !got.Equal(tt.want) {
 			t.Errorf("p.Time for %v got: %v, want: %v", tt.p, got, tt.want)
+		}
+	}
+}
+
+func TestPage_ShortURLs(t *testing.T) {
+	tests := []struct {
+		fm   string
+		urls []string
+	}{
+		{
+			"short_url: /a",
+			[]string{"/a"},
+		},
+		{
+			`short_url: ["/a", "/b"]`,
+			[]string{"/a", "/b"},
+		},
+		{
+			"short_url: \n- /a\n- /b",
+			[]string{"/a", "/b"},
+		},
+		{
+			"wordpress_id: 100",
+			[]string{"/b/1f"},
+		},
+		{
+			"short_url: /a\nwordpress_id: 100",
+			[]string{"/a", "/b/1f"},
+		},
+	}
+
+	for _, tt := range tests {
+		var buf bytes.Buffer
+		buf.WriteString("---\n")
+		buf.WriteString(tt.fm)
+		buf.WriteString("\n---\n")
+
+		p := &Page{}
+		if err := p.parseFrontMatter(&buf); err != nil {
+			t.Errorf("error reading front matter: %v", err)
+		}
+
+		urls, err := p.ShortURLs()
+		if err != nil {
+			t.Errorf("error fetching short urls: %v", err)
+		}
+
+		if !reflect.DeepEqual(urls, tt.urls) {
+			t.Errorf("page(%q) ShortURLs got: %v, want: %v", tt.fm, urls, tt.urls)
 		}
 	}
 }

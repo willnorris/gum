@@ -9,6 +9,7 @@ package jekyll
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -16,6 +17,7 @@ import (
 	"time"
 
 	yaml "gopkg.in/yaml.v1"
+	"willnorris.com/go/newbase60"
 )
 
 const (
@@ -109,4 +111,44 @@ func (p *Page) Time() time.Time {
 	}
 
 	return time.Time{}
+}
+
+// ShortURLs fetches the short URLs for the page.  This is determined by the
+// short_url property in the page's front matter, as well as the wordpress_id
+// property.
+//
+// Other short URLs may exist for the page that can only be calculated with
+// knowledge of other pages/posts.  For example, short URLs that identify the
+// the Nth post of type T on a particular date.
+func (p *Page) ShortURLs() ([]string, error) {
+	var urls []string
+
+	if s, ok := p.FrontMatter["short_url"]; ok {
+		switch v := s.(type) {
+		case string:
+			urls = append(urls, v)
+		case []interface{}:
+			for _, i := range v {
+				if u, ok := i.(string); ok {
+					urls = append(urls, u)
+				}
+			}
+		default:
+			return nil, fmt.Errorf("unable to parse short_url: %v", s)
+		}
+	}
+
+	// this is very specific to posts imported from a WordPress blog that
+	// used the Hum plugin.
+	if w, ok := p.FrontMatter["wordpress_id"]; ok {
+		id, ok := w.(int)
+		if !ok {
+			return nil, fmt.Errorf("unable to parse wordpress_id: %v", w)
+		}
+
+		u := fmt.Sprintf("/b/%s", newbase60.EncodeInt(id))
+		urls = append(urls, u)
+	}
+
+	return urls, nil
 }
