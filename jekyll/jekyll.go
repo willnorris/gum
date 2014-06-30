@@ -6,3 +6,86 @@
 
 // Package jekyll parses jekyll post files.
 package jekyll
+
+import (
+	"net/http"
+	"net/url"
+
+	"github.com/gorilla/mux"
+)
+
+// JekyllHandler handles short URLs for jekyll posts.
+type JekyllHandler struct {
+	// Prefix is the path component prefix this handler should handle.
+	// Prefix should not contain leading or trailing slashes.
+	Prefix string
+
+	// Site is the Jekyll site this handler serves URLs for.
+	site *Site
+
+	urls map[string]*url.URL
+}
+
+// NewHandler constructs a new JekyllHandler with the specified prefix and base
+// path which contains the Jekyll site (that is, the directory containing the
+// Jekyll _config.yml file).
+func NewHandler(prefix, path string) (*JekyllHandler, error) {
+	h := &JekyllHandler{
+		Prefix: prefix,
+		urls:   make(map[string]*url.URL),
+	}
+
+	var err error
+	h.site, err = NewSite(path)
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.populateURLs()
+	if err != nil {
+		return nil, err
+	}
+
+	return h, nil
+}
+
+func (h *JekyllHandler) populateURLs() error {
+	template := h.site.PermalinkTemplate()
+
+	for _, p := range h.site.Posts {
+		permalink := p.Permalink(template)
+		shortURLs, err := p.ShortURLs()
+		if err != nil {
+			return err
+		}
+
+		for _, u := range shortURLs {
+			if u == "" {
+				continue
+			}
+
+			h.urls[u], err = url.Parse(permalink)
+			if err != nil {
+				return err
+			}
+		}
+
+		// TODO: populate date-based short urls and check for collisions
+	}
+
+	return nil
+}
+
+func (h *JekyllHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if u, ok := h.urls[r.URL.Path]; ok {
+		http.Redirect(w, r, u.String(), http.StatusMovedPermanently)
+	}
+}
+
+// Register this handler with the provided Router.
+func (h *JekyllHandler) Register(router *mux.Router) {
+	router.Handle("/"+h.Prefix, h)
+	router.PathPrefix("/" + h.Prefix + "/").Handler(h)
+
+	// TODO: handle different possible prefixes
+}
