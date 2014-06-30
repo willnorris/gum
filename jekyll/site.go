@@ -28,6 +28,8 @@ type Site struct {
 	// config is the Jekyll configuration, parsed from the site's
 	// _config.yml file.
 	config map[string]interface{}
+
+	Posts []*Page
 }
 
 // NewSite creates a new Site at the given base path.
@@ -36,6 +38,12 @@ func NewSite(path string) (*Site, error) {
 	if err := s.parseConfig(); err != nil {
 		return nil, err
 	}
+
+	var err error
+	if s.Posts, err = s.loadPosts(); err != nil {
+		return nil, err
+	}
+
 	return s, nil
 }
 
