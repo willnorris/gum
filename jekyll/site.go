@@ -47,6 +47,28 @@ func NewSite(path string) (*Site, error) {
 	return s, nil
 }
 
+// PermalinkTemplate returns the template used to construct post permalinks for
+// the site.
+func (s *Site) PermalinkTemplate() string {
+	var permalink string
+	if p, ok := s.config["permalink"]; ok {
+		permalink, _ = p.(string)
+	}
+
+	// handle default value and built-in templates like 'date' and 'pretty'
+	// TODO: add support for :categories to templates below
+	switch permalink {
+	case "", "date":
+		permalink = "/:year/:month/:day/:title.html"
+	case "pretty":
+		permalink = "/:year/:month/:day/:title/"
+	case "none":
+		permalink = "/:title.html"
+	}
+
+	return permalink
+}
+
 // parseConfig parses the site's _config.yml file and stores it in s.config.
 func (s *Site) parseConfig() error {
 	path := filepath.Join(s.base, configFile)

@@ -23,6 +23,45 @@ func newTestSite(config string) (string, func(), error) {
 	return dir, cleanup, nil
 }
 
+func TestSite_PermalinkTemplate(t *testing.T) {
+	tests := []struct {
+		config map[string]interface{}
+		want   string
+	}{
+		{
+			config: nil,
+			want:   "/:year/:month/:day/:title.html",
+		},
+		{
+			config: map[string]interface{}{"permalink": ""},
+			want:   "/:year/:month/:day/:title.html",
+		},
+		{
+			config: map[string]interface{}{"permalink": "date"},
+			want:   "/:year/:month/:day/:title.html",
+		},
+		{
+			config: map[string]interface{}{"permalink": "pretty"},
+			want:   "/:year/:month/:day/:title/",
+		},
+		{
+			config: map[string]interface{}{"permalink": "none"},
+			want:   "/:title.html",
+		},
+		{
+			config: map[string]interface{}{"permalink": "/foo"},
+			want:   "/foo",
+		},
+	}
+
+	for _, tt := range tests {
+		s := &Site{config: tt.config}
+		if got := s.PermalinkTemplate(); got != tt.want {
+			t.Errorf("PermalinkTemplate with config %q got: %v, want: %v", tt.config, got, tt.want)
+		}
+	}
+}
+
 func TestSite_ParseConfig(t *testing.T) {
 	dir, cleanup, err := newTestSite("source: src")
 	if err != nil {
