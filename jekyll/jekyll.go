@@ -8,6 +8,7 @@
 package jekyll
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -53,7 +54,11 @@ func (h *JekyllHandler) populateURLs() error {
 	template := h.site.PermalinkTemplate()
 
 	for _, p := range h.site.Posts {
-		permalink := p.Permalink(template)
+		permalink, err := url.Parse(p.Permalink(template))
+		if err != nil {
+			return err
+		}
+
 		shortURLs, err := p.ShortURLs()
 		if err != nil {
 			return err
@@ -64,13 +69,13 @@ func (h *JekyllHandler) populateURLs() error {
 				continue
 			}
 
-			h.urls[u], err = url.Parse(permalink)
-			if err != nil {
-				return err
+			if link, ok := h.urls[u]; ok && link != permalink {
+				return fmt.Errorf("short url %q is already registered for permalink %q", u, permalink)
 			}
+			h.urls[u] = permalink
 		}
 
-		// TODO: populate date-based short urls and check for collisions
+		// TODO: populate date-based short urls
 	}
 
 	return nil
@@ -86,6 +91,9 @@ func (h *JekyllHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *JekyllHandler) Register(router *mux.Router) {
 	router.Handle("/"+h.Prefix, h)
 	router.PathPrefix("/" + h.Prefix + "/").Handler(h)
+
+	router.PathPrefix("/t/").Handler(h)
+	router.PathPrefix("/p/").Handler(h)
 
 	// TODO: handle different possible prefixes
 }

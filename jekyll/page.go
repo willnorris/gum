@@ -156,7 +156,12 @@ func (p *Page) ShortURLs() ([]string, error) {
 			return nil, fmt.Errorf("unable to parse wordpress_id: %v", w)
 		}
 
-		u := fmt.Sprintf("/b/%s", newbase60.EncodeInt(id))
+		// really old style shortlinks
+		u := fmt.Sprintf("/p/%d", id)
+		urls = append(urls, u)
+
+		// newer newbase60-encoded style
+		u = fmt.Sprintf("/b/%s", newbase60.EncodeInt(id))
 		urls = append(urls, u)
 	}
 
