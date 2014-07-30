@@ -8,9 +8,10 @@ letter) plus an identifier for the resource (often a date-based encoded ID).
 Exact content types and identifier format are configurable, but the overall
 design is strongly modelled after [Whistle][].
 
-While I'll probably do my best to keep things configurable, reusability is not
-a primary goal for now.  I'm primarily developing it for use on my personal
-website, so may occasionally hardcode some things that limit others' use.
+This is the URL resolver I run behind <https://willnorris.com/>.  While I'll
+probably do my best to keep things configurable, reusability is not a primary
+goal for now.  I'm primarily developing it for use on my personal website, so
+may occasionally hardcode some things that limit others' use.
 
 [Whistle]: http://tantek.com/w/Whistle
 
