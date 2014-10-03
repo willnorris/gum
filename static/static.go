@@ -21,6 +21,7 @@ import (
 	"code.google.com/p/go.net/html"
 	"code.google.com/p/go.net/html/atom"
 	"github.com/golang/glog"
+	fsnotify "gopkg.in/fsnotify.v1"
 	"willnorris.com/go/gum"
 )
 
@@ -31,7 +32,8 @@ const (
 
 // Handler handles short URLs parsed from static HTML files.
 type Handler struct {
-	base string
+	base    string
+	watcher *fsnotify.Watcher
 }
 
 // NewHandler constructs a new Handler with the specified base path of HTML
@@ -49,6 +51,56 @@ func NewHandler(base string) (*Handler, error) {
 // Mappings implements gum.Handler.
 func (h *Handler) Mappings(mappings chan<- gum.Mapping) {
 	loadFiles(h.base, mappings)
+
+	var err error
+	h.watcher, err = fsnotify.NewWatcher()
+	if err != nil {
+		glog.Errorf("error creating file watcher: %v", err)
+		return
+	}
+
+	go func() {
+		for {
+			select {
+			case ev := <-h.watcher.Events:
+				if ev.Op&(fsnotify.Remove|fsnotify.Rename) != 0 {
+					// ignore Remove and Rename events
+					continue
+				}
+
+				stat, err := os.Stat(ev.Name)
+				if err != nil {
+					glog.Errorf("Error reading file stats for %q: %v", ev.Name, err)
+				}
+
+				// add watcher for newly created directories
+				if ev.Op&fsnotify.Create == fsnotify.Create && stat.IsDir() {
+					h.watcher.Add(ev.Name)
+				}
+
+				// if event is Create or Write, reload files
+				if ev.Op&(fsnotify.Create|fsnotify.Write) != 0 {
+					loadFiles(ev.Name, mappings)
+				}
+			case err := <-h.watcher.Errors:
+				glog.Errorf("Watcher error: %v", err)
+			}
+		}
+	}()
+
+	// setup initial file watchers for h.base and all sub-directories
+	err = filepath.Walk(h.base, func(path string, info os.FileInfo, err error) error {
+		if err == nil && info.IsDir() {
+			err = h.watcher.Add(path)
+			if err != nil {
+				glog.Errorf("error watching path %q: %v", path, err)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		glog.Errorf("error setting up watchers for %q: %v", h.base, err)
+	}
 }
 
 // Register is a noop for this handler.
