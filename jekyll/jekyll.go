@@ -24,7 +24,7 @@ type Handler struct {
 	// Site is the Jekyll site this handler serves URLs for.
 	site *Site
 
-	urls map[string]*url.URL
+	urls map[string]string
 }
 
 // NewHandler constructs a new Handler with the specified prefix and base
@@ -33,7 +33,7 @@ type Handler struct {
 func NewHandler(prefix, path string) (*Handler, error) {
 	h := &Handler{
 		Prefix: prefix,
-		urls:   make(map[string]*url.URL),
+		urls:   make(map[string]string),
 	}
 
 	var err error
@@ -54,8 +54,8 @@ func (h *Handler) populateURLs() error {
 	template := h.site.PermalinkTemplate()
 
 	for _, p := range h.site.Posts {
-		permalink, err := url.Parse(p.Permalink(template))
-		if err != nil {
+		permalink := p.Permalink(template)
+		if _, err := url.Parse(permalink); err != nil {
 			return err
 		}
 
@@ -83,7 +83,7 @@ func (h *Handler) populateURLs() error {
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if u, ok := h.urls[r.URL.Path]; ok {
-		http.Redirect(w, r, u.String(), http.StatusMovedPermanently)
+		http.Redirect(w, r, u, http.StatusMovedPermanently)
 	}
 }
 
