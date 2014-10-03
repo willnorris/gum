@@ -8,7 +8,6 @@
 package jekyll
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -17,51 +16,39 @@ import (
 
 // Handler handles short URLs for jekyll posts.
 type Handler struct {
-	// Prefix is the path component prefix this handler should handle.
-	// Prefix should not contain leading or trailing slashes.
-	Prefix string
-
 	// Site is the Jekyll site this handler serves URLs for.
 	site *Site
-
-	urls map[string]string
 }
 
-// NewHandler constructs a new Handler with the specified prefix and base
-// path which contains the Jekyll site (that is, the directory containing the
-// Jekyll _config.yml file).
-func NewHandler(prefix, path string) (*Handler, error) {
-	h := &Handler{
-		Prefix: prefix,
-		urls:   make(map[string]string),
-	}
-
-	var err error
-	h.site, err = NewSite(path)
+// NewHandler constructs a new Handler with the specified base path which
+// contains the Jekyll site (that is, the directory containing the Jekyll
+// _config.yml file).
+func NewHandler(path string) (*Handler, error) {
+	site, err := NewSite(path)
 	if err != nil {
 		return nil, err
 	}
 
-	err = h.populateURLs()
-	if err != nil {
-		return nil, err
-	}
-
-	return h, nil
+	return &Handler{site: site}, nil
 }
 
-func (h *Handler) populateURLs() error {
+// URLs implements gum.Handler.
+func (h *Handler) URLs() map[string]string {
+	glog.Infof("Jekyll handler added for site: %v", h.site.base)
+	urls := make(map[string]string)
+
 	template := h.site.PermalinkTemplate()
-
 	for _, p := range h.site.Posts {
 		permalink := p.Permalink(template)
 		if _, err := url.Parse(permalink); err != nil {
-			return err
+			glog.Errorf("Jekyll permalink is not a valid URL: %v", err)
+			continue
 		}
 
 		shortURLs, err := p.ShortURLs()
 		if err != nil {
-			return err
+			glog.Errorf("Error parsing Jekyll short URLs: %v", err)
+			continue
 		}
 
 		for _, u := range shortURLs {
@@ -69,36 +56,18 @@ func (h *Handler) populateURLs() error {
 				continue
 			}
 
-			if link, ok := h.urls[u]; ok && link != permalink {
-				return fmt.Errorf("short url %q is already registered for permalink %q", u, permalink)
+			if link, ok := urls[u]; ok && link != permalink {
+				glog.Errorf("short url %q is already registered for permalink %q", u, permalink)
 			}
-			h.urls[u] = permalink
+			urls[u] = permalink
+			glog.Infof("  %v => %v", u, permalink)
 		}
 
 		// TODO: populate date-based short urls
 	}
 
-	return nil
+	return urls
 }
 
-func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if u, ok := h.urls[r.URL.Path]; ok {
-		http.Redirect(w, r, u, http.StatusMovedPermanently)
-	}
-}
-
-// Register this handler with the provided ServeMux.
-func (h *Handler) Register(mux *http.ServeMux) {
-	glog.Infof("Jekyll handler added for site: %v", h.site.base)
-	for path, dest := range h.urls {
-		glog.Infof("  %v => %v", path, dest)
-	}
-
-	mux.Handle("/"+h.Prefix, h)
-	mux.Handle("/"+h.Prefix+"/", h)
-
-	mux.Handle("/t/", h)
-	mux.Handle("/p/", h)
-
-	// TODO: handle different possible prefixes
-}
+// Register is a noop for this handler.
+func (h *Handler) Register(mux *http.ServeMux) {}

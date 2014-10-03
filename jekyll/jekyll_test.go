@@ -8,8 +8,7 @@ package jekyll
 
 import (
 	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
+
 	"os"
 	"path"
 	"testing"
@@ -29,30 +28,15 @@ func TestHandler_ServeHTTP(t *testing.T) {
 		t.Fatalf("error creating test post: %v", err)
 	}
 
-	in := "/b/1f"
-
-	handler, err := NewHandler("b", dir)
+	handler, err := NewHandler(dir)
 	if err != nil {
 		t.Fatalf("error constructing handler: %v", err)
 	}
 
-	w := httptest.NewRecorder()
-	r, err := http.NewRequest("GET", in, nil)
-	if err != nil {
-		t.Fatalf("error constructing request: %v", err)
-	}
-
-	handler.ServeHTTP(w, r)
-
-	if got, want := w.Code, http.StatusMovedPermanently; got != want {
-		t.Errorf("Response status code got %v, want %v", got, want)
-	}
-
-	loc := w.Header().Get("Location")
-	if loc == "" {
-		t.Errorf("No location header set for input: %q", in)
-	}
-	if got, want := loc, "/2014/05/28/test.html"; got != want {
-		t.Errorf("Location header for input %q got: %v, want: %v", in, got, want)
+	short, want := "/b/1f", "/2014/05/28/test.html"
+	if got, ok := handler.URLs()[short]; !ok {
+		t.Errorf("handler did not contain url for %q", short)
+	} else if got != want {
+		t.Errorf("handler url for %q got %v, want %v", short, got, want)
 	}
 }

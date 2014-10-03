@@ -54,7 +54,7 @@ func main() {
 	}
 	g.AddHandler(r)
 
-	j, err := jekyll.NewHandler("b", "/var/www/willnorris.com")
+	j, err := jekyll.NewHandler("/var/www/willnorris.com")
 	if err != nil {
 		log.Fatal("error adding jekyll handler: ", err)
 	}
