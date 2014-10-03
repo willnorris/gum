@@ -13,11 +13,15 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"code.google.com/p/go.net/html"
 	"code.google.com/p/go.net/html/atom"
+	"github.com/golang/glog"
+	"willnorris.com/go/gum"
 )
 
 const (
@@ -42,13 +46,57 @@ func NewHandler(base string) (*Handler, error) {
 	return &Handler{base: base}, nil
 }
 
-// URLs implements gum.Handler.
-func (h *Handler) URLs() map[string]string {
-	return nil
+// Mappings implements gum.Handler.
+func (h *Handler) Mappings(mappings chan<- gum.Mapping) {
+	loadFiles(h.base, mappings)
 }
 
 // Register is a noop for this handler.
 func (h *Handler) Register(mux *http.ServeMux) {}
+
+func loadFiles(base string, mappings chan<- gum.Mapping) {
+	walkFn := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			glog.Errorf("error reading file %q: %v", path, err)
+			return nil
+		}
+		if info.IsDir() || filepath.Ext(path) != ".html" {
+			// skip directories and non-HTML files
+			return nil
+		}
+
+		f, err := os.Open(path)
+		if err != nil {
+			glog.Errorf("error opening file %q: %v", path, err)
+			return nil
+		}
+		defer f.Close()
+
+		shortlink, permalink, err := parseFile(f)
+		if err != nil {
+			glog.Errorf("error parsing file %q: %v", path, err)
+			return nil
+		} else if len(shortlink) == 0 || len(permalink) == 0 {
+			// no shortlink or permalink
+			return nil
+		}
+
+		shorturl, err := url.Parse(shortlink)
+		if err != nil {
+			glog.Errorf("error parsing shortlink %q: %v", shortlink, err)
+			return nil
+		}
+
+		glog.Infof("  %v => %v", shorturl.Path, permalink)
+		mappings <- gum.Mapping{ShortPath: shorturl.Path, Permalink: permalink}
+		return nil
+	}
+
+	err := filepath.Walk(base, walkFn)
+	if err != nil {
+		glog.Errorf("Walk(%q) returned error: %v", base, err)
+	}
+}
 
 // parseFile parses r as HTML and returns the URLs of the first links found
 // with the "shortlink" and "canonical" rel values.
