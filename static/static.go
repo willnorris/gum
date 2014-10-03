@@ -28,6 +28,7 @@ import (
 const (
 	relShortlink = "shortlink"
 	relCanonical = "canonical"
+	attrAltHref  = "data-alt-href"
 )
 
 // Handler handles short URLs parsed from static HTML files.
@@ -124,23 +125,18 @@ func loadFiles(base string, mappings chan<- gum.Mapping) {
 		}
 		defer f.Close()
 
-		shortlink, permalink, err := parseFile(f)
+		fileMappings, err := parseFile(f)
 		if err != nil {
 			glog.Errorf("error parsing file %q: %v", path, err)
 			return nil
-		} else if len(shortlink) == 0 || len(permalink) == 0 {
-			// no shortlink or permalink
+		} else if len(fileMappings) == 0 {
 			return nil
 		}
 
-		shorturl, err := url.Parse(shortlink)
-		if err != nil {
-			glog.Errorf("error parsing shortlink %q: %v", shortlink, err)
-			return nil
+		for _, m := range fileMappings {
+			glog.Infof("  %v => %v", m.ShortPath, m.Permalink)
+			mappings <- m
 		}
-
-		glog.Infof("  %v => %v", shorturl.Path, permalink)
-		mappings <- gum.Mapping{ShortPath: shorturl.Path, Permalink: permalink}
 		return nil
 	}
 
@@ -152,17 +148,20 @@ func loadFiles(base string, mappings chan<- gum.Mapping) {
 
 // parseFile parses r as HTML and returns the URLs of the first links found
 // with the "shortlink" and "canonical" rel values.
-func parseFile(r io.Reader) (shortlink string, permalink string, err error) {
+func parseFile(r io.Reader) (mappings []gum.Mapping, err error) {
+	var permalink string
+	var shortlinks []string
+
 	doc, err := html.Parse(r)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 
 	var f func(*html.Node) bool
 	f = func(n *html.Node) (done bool) {
 		if n.Type == html.ElementNode {
 			if n.DataAtom == atom.Link || n.DataAtom == atom.A {
-				var href, rel string
+				var href, rel, altHref string
 				for _, a := range n.Attr {
 					if a.Key == atom.Href.String() {
 						href = a.Val
@@ -170,18 +169,22 @@ func parseFile(r io.Reader) (shortlink string, permalink string, err error) {
 					if a.Key == atom.Rel.String() {
 						rel = a.Val
 					}
+					if a.Key == attrAltHref {
+						altHref = a.Val
+					}
 				}
 				if len(href) > 0 && len(rel) > 0 {
 					for _, v := range strings.Split(rel, " ") {
-						if v == relShortlink && len(shortlink) == 0 {
-							shortlink = href
+						if v == relShortlink && len(shortlinks) == 0 {
+							shortlinks = []string{href}
+							shortlinks = append(shortlinks, strings.Split(altHref, " ")...)
 						}
 						if v == relCanonical && len(permalink) == 0 {
 							permalink = href
 						}
 					}
 				}
-				if len(shortlink) > 0 && len(permalink) > 0 {
+				if len(shortlinks) > 0 && len(permalink) > 0 {
 					return true
 				}
 			}
@@ -194,5 +197,17 @@ func parseFile(r io.Reader) (shortlink string, permalink string, err error) {
 
 	f(doc)
 
-	return shortlink, permalink, nil
+	if len(shortlinks) > 0 && len(permalink) > 0 {
+		for _, link := range shortlinks {
+			shorturl, err := url.Parse(link)
+			if err != nil {
+				glog.Errorf("error parsing shortlink %q: %v", link, err)
+			}
+			if path := shorturl.Path; len(path) > 1 {
+				mappings = append(mappings, gum.Mapping{ShortPath: path, Permalink: permalink})
+			}
+		}
+	}
+
+	return mappings, nil
 }
