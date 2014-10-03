@@ -13,24 +13,24 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// GumServer is a short URL redirection server.
-type GumServer struct {
+// Server is a short URL redirection server.
+type Server struct {
 	router *mux.Router
 }
 
-// NewServer constructs a new GumServer.
-func NewServer() *GumServer {
-	return &GumServer{
+// NewServer constructs a new Server.
+func NewServer() *Server {
+	return &Server{
 		router: mux.NewRouter(),
 	}
 }
 
-func (g *GumServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (g *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	g.router.ServeHTTP(w, r)
 }
 
 // AddHandler adds the provided Handler to the server.
-func (g *GumServer) AddHandler(h Handler) {
+func (g *Server) AddHandler(h Handler) {
 	h.Register(g.router)
 }
 

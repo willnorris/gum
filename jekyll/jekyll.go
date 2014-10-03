@@ -16,8 +16,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// JekyllHandler handles short URLs for jekyll posts.
-type JekyllHandler struct {
+// Handler handles short URLs for jekyll posts.
+type Handler struct {
 	// Prefix is the path component prefix this handler should handle.
 	// Prefix should not contain leading or trailing slashes.
 	Prefix string
@@ -28,11 +28,11 @@ type JekyllHandler struct {
 	urls map[string]*url.URL
 }
 
-// NewHandler constructs a new JekyllHandler with the specified prefix and base
+// NewHandler constructs a new Handler with the specified prefix and base
 // path which contains the Jekyll site (that is, the directory containing the
 // Jekyll _config.yml file).
-func NewHandler(prefix, path string) (*JekyllHandler, error) {
-	h := &JekyllHandler{
+func NewHandler(prefix, path string) (*Handler, error) {
+	h := &Handler{
 		Prefix: prefix,
 		urls:   make(map[string]*url.URL),
 	}
@@ -51,7 +51,7 @@ func NewHandler(prefix, path string) (*JekyllHandler, error) {
 	return h, nil
 }
 
-func (h *JekyllHandler) populateURLs() error {
+func (h *Handler) populateURLs() error {
 	template := h.site.PermalinkTemplate()
 
 	for _, p := range h.site.Posts {
@@ -82,14 +82,14 @@ func (h *JekyllHandler) populateURLs() error {
 	return nil
 }
 
-func (h *JekyllHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if u, ok := h.urls[r.URL.Path]; ok {
 		http.Redirect(w, r, u.String(), http.StatusMovedPermanently)
 	}
 }
 
 // Register this handler with the provided Router.
-func (h *JekyllHandler) Register(router *mux.Router) {
+func (h *Handler) Register(router *mux.Router) {
 	glog.Infof("Jekyll handler added for site: %v", h.site.base)
 	for path, dest := range h.urls {
 		glog.Infof("  %v => %v", path, dest)

@@ -15,7 +15,7 @@ import (
 	"testing"
 )
 
-func TestJekyllHandler_ServeHTTP(t *testing.T) {
+func TestHandler_ServeHTTP(t *testing.T) {
 	dir, cleanup, err := newTestSite("")
 	if err != nil {
 		t.Fatalf("error creating test site: %v", err)
