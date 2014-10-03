@@ -9,20 +9,23 @@ package static
 import (
 	"bytes"
 	"testing"
+
+	"willnorris.com/go/gum"
 )
 
 func TestParseFile(t *testing.T) {
-	input := `<link rel="shortlink" href="s"><link rel="canonical" href="p">`
+	input := `<link rel="shortlink" href="/s"><link rel="canonical" href="/p">`
 	buf := bytes.NewBufferString(input)
 
-	shortlink, permalink, err := parseFile(buf)
+	mappings, err := parseFile(buf)
 	if err != nil {
 		t.Fatalf("error parsing file: %v", err)
 	}
-	if got, want := shortlink, "s"; got != want {
-		t.Fatalf("parseFile(%q) returned shortlink %v, want %v", input, got, want)
+	if len(mappings) == 0 {
+		t.Fatal("parseFile returned 0 mappings")
 	}
-	if got, want := permalink, "p"; got != want {
-		t.Fatalf("parseFile(%q) returned permalink %v, want %v", input, got, want)
+	want := gum.Mapping{ShortPath: "/s", Permalink: "/p"}
+	if got := mappings[0]; got != want {
+		t.Fatalf("parseFile(%q) returned mapping %v, want %v", input, got, want)
 	}
 }
