@@ -88,11 +88,11 @@ func TestPage_ShortURLs(t *testing.T) {
 		},
 		{
 			"wordpress_id: 100",
-			[]string{"/p/100", "/b/1f"},
+			[]string{"/b/1f", "/p/100"},
 		},
 		{
 			"short_url: /a\nwordpress_id: 100",
-			[]string{"/a", "/p/100", "/b/1f"},
+			[]string{"/a", "/b/1f", "/p/100"},
 		},
 	}
 
