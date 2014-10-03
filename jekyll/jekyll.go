@@ -12,6 +12,7 @@ import (
 	"net/url"
 
 	"github.com/golang/glog"
+	"willnorris.com/go/gum"
 )
 
 // Handler handles short URLs for jekyll posts.
@@ -32,10 +33,9 @@ func NewHandler(path string) (*Handler, error) {
 	return &Handler{site: site}, nil
 }
 
-// URLs implements gum.Handler.
-func (h *Handler) URLs() map[string]string {
+// Mappings implements gum.Handler.
+func (h *Handler) Mappings(mappings chan<- gum.Mapping) {
 	glog.Infof("Jekyll handler added for site: %v", h.site.base)
-	urls := make(map[string]string)
 
 	template := h.site.PermalinkTemplate()
 	for _, p := range h.site.Posts {
@@ -56,17 +56,12 @@ func (h *Handler) URLs() map[string]string {
 				continue
 			}
 
-			if link, ok := urls[u]; ok && link != permalink {
-				glog.Errorf("short url %q is already registered for permalink %q", u, permalink)
-			}
-			urls[u] = permalink
 			glog.Infof("  %v => %v", u, permalink)
+			mappings <- gum.Mapping{ShortPath: u, Permalink: permalink}
 		}
 
 		// TODO: populate date-based short urls
 	}
-
-	return urls
 }
 
 // Register is a noop for this handler.

@@ -79,6 +79,4 @@ func (h *RedirectHandler) Register(mux *http.ServeMux) {
 	mux.Handle("/"+h.Prefix+"/", h)
 }
 
-func (h *RedirectHandler) URLs() map[string]string {
-	return nil
-}
+func (h *RedirectHandler) Mappings(mappings chan<- Mapping) {}

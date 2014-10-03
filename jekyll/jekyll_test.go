@@ -8,10 +8,11 @@ package jekyll
 
 import (
 	"io/ioutil"
-
 	"os"
 	"path"
 	"testing"
+
+	"willnorris.com/go/gum"
 )
 
 func TestHandler_ServeHTTP(t *testing.T) {
@@ -33,10 +34,16 @@ func TestHandler_ServeHTTP(t *testing.T) {
 		t.Fatalf("error constructing handler: %v", err)
 	}
 
-	short, want := "/b/1f", "/2014/05/28/test.html"
-	if got, ok := handler.URLs()[short]; !ok {
-		t.Errorf("handler did not contain url for %q", short)
-	} else if got != want {
-		t.Errorf("handler url for %q got %v, want %v", short, got, want)
+	mappings := make(chan gum.Mapping, 3)
+	handler.Mappings(mappings)
+
+	want := gum.Mapping{ShortPath: "/b/1f", Permalink: "/2014/05/28/test.html"}
+	select {
+	case got := <-mappings:
+		if got != want {
+			t.Errorf("handler returned mapping %v, want %v", got, want)
+		}
+	default:
+		t.Errorf("handler returned no mappings")
 	}
 }

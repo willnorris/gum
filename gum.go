@@ -20,17 +20,22 @@ type Server struct {
 
 	// map of short URL paths to destinations
 	urls map[string]string
+
+	// channel of static mappings of short URLs and their destinations
+	mappings chan Mapping
 }
 
 // NewServer constructs a new Server.
 func NewServer() *Server {
 	s := &Server{
-		mux:  http.NewServeMux(),
-		urls: make(map[string]string),
+		mux:      http.NewServeMux(),
+		urls:     make(map[string]string),
+		mappings: make(chan Mapping),
 	}
 
 	// default handler
 	s.mux.HandleFunc("/", s.redirect)
+	go s.readMappings()
 
 	return s
 }
@@ -52,20 +57,31 @@ func (s *Server) redirect(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 }
 
+// readMappings reads values off the s.mappings channel and uses them to
+// populate s.urls.  This method does not return.
+func (s *Server) readMappings() {
+	for {
+		m := <-s.mappings
+		if link, ok := s.urls[m.ShortPath]; ok && link != m.Permalink {
+			glog.Warningf("overwriting previous mapping for path %q (from %q to %q)", m.ShortPath, link, m.Permalink)
+		}
+		s.urls[m.ShortPath] = m.Permalink
+	}
+}
+
 // AddHandler adds the provided Handler to the server.
 func (s *Server) AddHandler(h Handler) {
 	h.Register(s.mux)
+	h.Mappings(s.mappings)
+}
 
-	// append redirect URLs from the handler
-	if urls := h.URLs(); len(urls) > 0 {
-		for k, v := range urls {
-			if link, ok := s.urls[k]; ok && link != v {
-				glog.Warningf("redirect already exists for path %q (destination: %v). skipping", k, link)
-				continue
-			}
-			s.urls[k] = v
-		}
-	}
+// Mapping represents a mapping between a short URL path and the permalink URL it is for.
+type Mapping struct {
+	// ShortPath is the path of the short URL to be mapped.
+	ShortPath string
+
+	// Permalink is the destination URL being mapped to.
+	Permalink string
 }
 
 // A Handler serves requests for short URLs.  Typically, a handler will
@@ -79,7 +95,6 @@ type Handler interface {
 	// /x/*" where x is a particular content type.
 	Register(*http.ServeMux)
 
-	// URLs returns a map of URL paths (the shortened URLs) to the
-	// destination URL it should be redirected to.
-	URLs() map[string]string
+	// Mappings provides a write only channel for the handler to write static Mapping values onto.
+	Mappings(chan<- Mapping)
 }
