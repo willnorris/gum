@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 )
 
@@ -74,6 +75,7 @@ func (h *RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Register this handler with the provided Router.
 func (h *RedirectHandler) Register(router *mux.Router) {
+	glog.Infof("Redirect handler added: %q => %q", h.Prefix, h.Destination)
 	router.Handle("/"+h.Prefix, h)
 	router.PathPrefix("/" + h.Prefix + "/").Handler(h)
 }

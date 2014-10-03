@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 )
 
@@ -89,6 +90,11 @@ func (h *JekyllHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Register this handler with the provided Router.
 func (h *JekyllHandler) Register(router *mux.Router) {
+	glog.Infof("Jekyll handler added for site: %v", h.site.base)
+	for path, dest := range h.urls {
+		glog.Infof("  %v => %v", path, dest)
+	}
+
 	router.Handle("/"+h.Prefix, h)
 	router.PathPrefix("/" + h.Prefix + "/").Handler(h)
 
