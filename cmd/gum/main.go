@@ -12,7 +12,7 @@ import (
 	"os"
 
 	"willnorris.com/go/gum"
-	"willnorris.com/go/gum/jekyll"
+	"willnorris.com/go/gum/static"
 )
 
 // goxc values
@@ -24,7 +24,7 @@ var (
 	BUILD_DATE string
 )
 
-var addr = flag.String("addr", "localhost:8080", "TCP address to listen on")
+var addr = flag.String("addr", "localhost:8002", "TCP address to listen on")
 var version = flag.Bool("version", false, "print version information")
 
 func main() {
@@ -54,11 +54,11 @@ func main() {
 	}
 	g.AddHandler(r)
 
-	j, err := jekyll.NewHandler("/var/www/willnorris.com")
+	s, err := static.NewHandler("/var/www/willnorris.com/public")
 	if err != nil {
-		log.Fatal("error adding jekyll handler: ", err)
+		log.Fatal("error adding static handler: ", err)
 	}
-	g.AddHandler(j)
+	g.AddHandler(s)
 
 	server := &http.Server{
 		Addr:    *addr,
