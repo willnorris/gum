@@ -13,7 +13,6 @@ import (
 	"net/url"
 
 	"github.com/golang/glog"
-	"github.com/gorilla/mux"
 )
 
 // Handler handles short URLs for jekyll posts.
@@ -88,18 +87,18 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Register this handler with the provided Router.
-func (h *Handler) Register(router *mux.Router) {
+// Register this handler with the provided ServeMux.
+func (h *Handler) Register(mux *http.ServeMux) {
 	glog.Infof("Jekyll handler added for site: %v", h.site.base)
 	for path, dest := range h.urls {
 		glog.Infof("  %v => %v", path, dest)
 	}
 
-	router.Handle("/"+h.Prefix, h)
-	router.PathPrefix("/" + h.Prefix + "/").Handler(h)
+	mux.Handle("/"+h.Prefix, h)
+	mux.Handle("/"+h.Prefix+"/", h)
 
-	router.PathPrefix("/t/").Handler(h)
-	router.PathPrefix("/p/").Handler(h)
+	mux.Handle("/t/", h)
+	mux.Handle("/p/", h)
 
 	// TODO: handle different possible prefixes
 }

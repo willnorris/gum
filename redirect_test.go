@@ -10,8 +10,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/gorilla/mux"
 )
 
 func TestRedirectHandler(t *testing.T) {
@@ -124,35 +122,40 @@ func TestRedirectHandler(t *testing.T) {
 	}
 }
 
-// Test that RedirectHandler registers proper prefixes on mux Router.
+// Test that RedirectHandler registers proper prefixes on ServeMux.
 func TestRedirectHandler_Register(t *testing.T) {
 	tests := []struct {
-		prefix string
-		in     string
-		match  bool
+		prefix       string
+		in, location string
+		code         int
 	}{
-		{prefix: "x", in: "/x", match: true},
-		{prefix: "x", in: "/x/", match: true},
-		{prefix: "x", in: "/x/y", match: true},
-		{prefix: "x", in: "/xy", match: false},
+		{prefix: "x", in: "/x", location: "/", code: http.StatusMovedPermanently},
+		{prefix: "x", in: "/x/", location: "/", code: http.StatusMovedPermanently},
+		{prefix: "x", in: "/x/y", location: "/y", code: http.StatusMovedPermanently},
+		{prefix: "x", in: "/xy", location: "", code: http.StatusNotFound},
 	}
 
 	for _, tt := range tests {
-		router := mux.NewRouter()
+		mux := http.NewServeMux()
 		handler, err := NewRedirectHandler(tt.prefix, "")
 		if err != nil {
 			t.Fatalf("error constructing handler: %v", err)
 		}
-		handler.Register(router)
+		handler.Register(mux)
 
-		var routeMatch mux.RouteMatch
 		req, err := http.NewRequest("GET", tt.in, nil)
 		if err != nil {
 			t.Errorf("error constructing request for %q: %v", tt.in, err)
 		}
 
-		if got, want := router.Match(req, &routeMatch), tt.match; got != want {
-			t.Errorf("route match for %q found: %v, want %v", tt.in, got, want)
+		resp := httptest.NewRecorder()
+		mux.ServeHTTP(resp, req)
+
+		if got, want := resp.Code, tt.code; got != want {
+			t.Errorf("response for %q had status %v, want %v", tt.in, got, want)
+		}
+		if got, want := resp.Header().Get("Location"), tt.location; got != want {
+			t.Errorf("response Location header was %v, want %v", got, want)
 		}
 	}
 }

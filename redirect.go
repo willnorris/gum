@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
-	"github.com/gorilla/mux"
 )
 
 // RedirectHandler redirects requests that match a given path component prefix
@@ -73,9 +72,9 @@ func (h *RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, dest.String(), h.Status)
 }
 
-// Register this handler with the provided Router.
-func (h *RedirectHandler) Register(router *mux.Router) {
+// Register this handler with the provided ServeMux.
+func (h *RedirectHandler) Register(mux *http.ServeMux) {
 	glog.Infof("Redirect handler added: %q => %q", h.Prefix, h.Destination)
-	router.Handle("/"+h.Prefix, h)
-	router.PathPrefix("/" + h.Prefix + "/").Handler(h)
+	mux.Handle("/"+h.Prefix, h)
+	mux.Handle("/"+h.Prefix+"/", h)
 }
