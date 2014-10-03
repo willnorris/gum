@@ -75,15 +75,15 @@ func TestPage_ShortURLs(t *testing.T) {
 		urls []string
 	}{
 		{
-			"short_url: /a",
+			"shortlink: /a",
 			[]string{"/a"},
 		},
 		{
-			`short_url: ["/a", "/b"]`,
+			`shortlink: ["/a", "/b"]`,
 			[]string{"/a", "/b"},
 		},
 		{
-			"short_url: \n- /a\n- /b",
+			"shortlink: \n- /a\n- /b",
 			[]string{"/a", "/b"},
 		},
 		{
@@ -91,7 +91,7 @@ func TestPage_ShortURLs(t *testing.T) {
 			[]string{"/b/1f", "/p/100"},
 		},
 		{
-			"short_url: /a\nwordpress_id: 100",
+			"shortlink: /a\nwordpress_id: 100",
 			[]string{"/a", "/b/1f", "/p/100"},
 		},
 	}

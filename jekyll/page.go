@@ -124,7 +124,7 @@ func (p *Page) Time() time.Time {
 }
 
 // ShortURLs fetches the short URLs for the page.  This is determined by the
-// short_url property in the page's front matter, as well as the wordpress_id
+// shortlink property in the page's front matter, as well as the wordpress_id
 // property.
 //
 // Other short URLs may exist for the page that can only be calculated with
@@ -133,7 +133,7 @@ func (p *Page) Time() time.Time {
 func (p *Page) ShortURLs() ([]string, error) {
 	var urls []string
 
-	if s, ok := p.FrontMatter["short_url"]; ok {
+	if s, ok := p.FrontMatter["shortlink"]; ok {
 		switch v := s.(type) {
 		case string:
 			urls = append(urls, v)
@@ -144,7 +144,7 @@ func (p *Page) ShortURLs() ([]string, error) {
 				}
 			}
 		default:
-			return nil, fmt.Errorf("unable to parse short_url: %v", s)
+			return nil, fmt.Errorf("unable to parse shortlink: %v", s)
 		}
 	}
 
