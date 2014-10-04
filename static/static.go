@@ -157,8 +157,8 @@ func parseFile(r io.Reader) (mappings []gum.Mapping, err error) {
 		return nil, err
 	}
 
-	var f func(*html.Node) bool
-	f = func(n *html.Node) (done bool) {
+	var f func(*html.Node)
+	f = func(n *html.Node) {
 		if n.Type == html.ElementNode {
 			if n.DataAtom == atom.Link || n.DataAtom == atom.A {
 				var href, rel, altHref string
@@ -175,8 +175,8 @@ func parseFile(r io.Reader) (mappings []gum.Mapping, err error) {
 				}
 				if len(href) > 0 && len(rel) > 0 {
 					for _, v := range strings.Split(rel, " ") {
-						if v == relShortlink && len(shortlinks) == 0 {
-							shortlinks = []string{href}
+						if v == relShortlink {
+							shortlinks = append(shortlinks, href)
 							shortlinks = append(shortlinks, strings.Split(altHref, " ")...)
 						}
 						if v == relCanonical && len(permalink) == 0 {
@@ -184,15 +184,11 @@ func parseFile(r io.Reader) (mappings []gum.Mapping, err error) {
 						}
 					}
 				}
-				if len(shortlinks) > 0 && len(permalink) > 0 {
-					return true
-				}
 			}
 		}
-		for c := n.FirstChild; c != nil && !done; c = c.NextSibling {
-			done = f(c)
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
 		}
-		return done
 	}
 
 	f(doc)

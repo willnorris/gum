@@ -14,18 +14,24 @@ import (
 )
 
 func TestParseFile(t *testing.T) {
-	input := `<link rel="shortlink" href="/s"><link rel="canonical" href="/p">`
+	input := `<link rel="shortlink" href="/s1"><link rel="canonical" href="/p"><a rel="shortlink" href="/s2">`
 	buf := bytes.NewBufferString(input)
 
 	mappings, err := parseFile(buf)
 	if err != nil {
 		t.Fatalf("error parsing file: %v", err)
 	}
-	if len(mappings) == 0 {
-		t.Fatal("parseFile returned 0 mappings")
+	if got, want := len(mappings), 2; got != want {
+		t.Fatalf("parseFile returned %d mappings, want %d", got, want)
 	}
-	want := gum.Mapping{ShortPath: "/s", Permalink: "/p"}
+
+	want := gum.Mapping{ShortPath: "/s1", Permalink: "/p"}
 	if got := mappings[0]; got != want {
+		t.Fatalf("parseFile(%q) returned mapping %v, want %v", input, got, want)
+	}
+
+	want = gum.Mapping{ShortPath: "/s2", Permalink: "/p"}
+	if got := mappings[1]; got != want {
 		t.Fatalf("parseFile(%q) returned mapping %v, want %v", input, got, want)
 	}
 }
