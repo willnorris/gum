@@ -134,7 +134,6 @@ func loadFiles(base string, mappings chan<- gum.Mapping) {
 		}
 
 		for _, m := range fileMappings {
-			glog.Infof("  %v => %v", m.ShortPath, m.Permalink)
 			mappings <- m
 		}
 		return nil

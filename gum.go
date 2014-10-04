@@ -62,8 +62,10 @@ func (s *Server) redirect(w http.ResponseWriter, r *http.Request) {
 func (s *Server) readMappings() {
 	for {
 		m := <-s.mappings
-		if link, ok := s.urls[m.ShortPath]; ok && link != m.Permalink {
-			glog.Warningf("overwriting previous mapping for path %q (from %q to %q)", m.ShortPath, link, m.Permalink)
+		if old, ok := s.urls[m.ShortPath]; ok && old != m.Permalink {
+			glog.Warningf("Overwriting mapping: %v => %v (previously %q)", m.ShortPath, m.Permalink, old)
+		} else {
+			glog.Infof("New mapping: %-7v => %v", m.ShortPath, m.Permalink)
 		}
 		s.urls[m.ShortPath] = m.Permalink
 	}

@@ -74,7 +74,7 @@ func (h *RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Register this handler with the provided ServeMux.
 func (h *RedirectHandler) Register(mux *http.ServeMux) {
-	glog.Infof("Redirect handler added: %q => %q", h.Prefix, h.Destination)
+	glog.Infof("New redirect handler: %v => %v", h.Prefix, h.Destination)
 	mux.Handle("/"+h.Prefix, h)
 	mux.Handle("/"+h.Prefix+"/", h)
 }
