@@ -7,7 +7,7 @@
 // Package static handles redirects parsed from static HTML files.  Files are
 // parsed and searched for rel="shortlink" and rel="canonical" links.  If both
 // are found, a redirect is registered for the pair.
-package static
+package static // import "willnorris.com/go/gum/static"
 
 import (
 	"fmt"

@@ -5,7 +5,7 @@
 // https://developers.google.com/open-source/licenses/bsd
 
 // Package gum provides the gum personal short URL resolver.
-package gum
+package gum // import "willnorris.com/go/gum"
 
 import (
 	"net/http"
