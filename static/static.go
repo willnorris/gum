@@ -18,9 +18,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"code.google.com/p/go.net/html"
-	"code.google.com/p/go.net/html/atom"
 	"github.com/golang/glog"
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 	fsnotify "gopkg.in/fsnotify.v1"
 	"willnorris.com/go/gum"
 )
