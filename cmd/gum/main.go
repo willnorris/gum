@@ -1,7 +1,5 @@
-// The gum binary starts up a gum server, configured for willnorris.com.
-// Eventually, this should read from a configuration file instead of handlers
-// being hardcoded here.  In the meantime, this should serve as a starting
-// point for others.
+// The gum binary starts up a gum server.  See the usage text for configuration
+// options.
 package main
 
 import (

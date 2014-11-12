@@ -8,10 +8,10 @@ letter) plus an identifier for the resource (often a date-based encoded ID).
 Exact content types and identifier format are configurable, but the overall
 design is strongly modelled after [Whistle][].
 
-This is the URL resolver I run behind <https://willnorris.com/>.  While I'll
-probably do my best to keep things configurable, reusability is not a primary
-goal for now.  I'm primarily developing it for use on my personal website, so
-may occasionally hardcode some things that limit others' use.
+This is the URL resolver I run behind <https://willnorris.com/>.  So far, I've
+only implemented those handlers I use on my own site, but everything should be
+easily usable by others.  Pass the `-help` flag to the 
+[gum binary](cmd/gum/main.go) to see the configuration options.
 
 [Whistle]: http://tantek.com/w/Whistle
 
