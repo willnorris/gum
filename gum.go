@@ -21,7 +21,9 @@ type Server struct {
 	// map of short URL paths to destinations
 	urls map[string]string
 
-	// channel of static mappings of short URLs and their destinations
+	// channel of static mappings of short URLs and their destinations.
+	// Handlers can write to this channel to register new mappings; the
+	// Server will read from this channel and handle serving the redirects.
 	mappings chan Mapping
 }
 
@@ -33,7 +35,7 @@ func NewServer() *Server {
 		mappings: make(chan Mapping),
 	}
 
-	// default handler
+	// the default handler serves redirects for registered Mapping values
 	s.mux.HandleFunc("/", s.redirect)
 	go s.readMappings()
 
@@ -87,16 +89,18 @@ type Mapping struct {
 }
 
 // A Handler serves requests for short URLs.  Typically, a handler will
-// register itself for a single content type prefix so that matching requests
-// are routed to it.
+// register itself for an entire path prefix using the Register func, or
+// provide a list of static mappings using the Mappings func.
 type Handler interface {
-	// Register the handler with the provided Router.  This method will be
-	// called when the handler is added to the router, and allows the
+	// Register the handler with the provided ServeMux.  This method will be
+	// called when the handler is added to the mux, and allows the
 	// handler to specify the kinds of short URLs it can handle.
 	// Typically, but not always, this will be URLs of the form "/x" and
 	// /x/*" where x is a particular content type.
 	Register(*http.ServeMux)
 
-	// Mappings provides a write only channel for the handler to write static Mapping values onto.
+	// Mappings provides a write only channel for the handler to write
+	// static Mapping values onto.  These mappings are then registered with
+	// and the redirects handled by the Server.
 	Mappings(chan<- Mapping)
 }
