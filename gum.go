@@ -9,6 +9,7 @@ package gum // import "willnorris.com/go/gum"
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/golang/glog"
 )
@@ -25,6 +26,9 @@ type Server struct {
 	// Handlers can write to this channel to register new mappings; the
 	// Server will read from this channel and handle serving the redirects.
 	mappings chan Mapping
+
+	// mutex is a read/write lock for accessing the urls map
+	mutex sync.RWMutex
 }
 
 // NewServer constructs a new Server.
@@ -50,6 +54,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // redirect the request if a matching URL mapping has been configured.  If no
 // mapping is found, a 404 status is returned.
 func (s *Server) redirect(w http.ResponseWriter, r *http.Request) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
 	if url, ok := s.urls[r.URL.Path]; ok && url != "" {
 		http.Redirect(w, r, url, http.StatusMovedPermanently)
 		return
@@ -65,6 +72,7 @@ func (s *Server) readMappings() {
 	for {
 		m := <-s.mappings
 
+		s.mutex.Lock()
 		if old, exists := s.urls[m.ShortPath]; exists {
 			if m.Permalink == "" {
 				glog.Infof("Deleting mapping: %v", m.ShortPath)
@@ -77,6 +85,7 @@ func (s *Server) readMappings() {
 			glog.Infof("New mapping: %-7v => %v", m.ShortPath, m.Permalink)
 			s.urls[m.ShortPath] = m.Permalink
 		}
+		s.mutex.Unlock()
 	}
 }
 
