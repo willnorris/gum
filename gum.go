@@ -50,7 +50,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // redirect the request if a matching URL mapping has been configured.  If no
 // mapping is found, a 404 status is returned.
 func (s *Server) redirect(w http.ResponseWriter, r *http.Request) {
-	if url, ok := s.urls[r.URL.Path]; ok {
+	if url, ok := s.urls[r.URL.Path]; ok && url != "" {
 		http.Redirect(w, r, url, http.StatusMovedPermanently)
 		return
 	}
@@ -64,12 +64,19 @@ func (s *Server) redirect(w http.ResponseWriter, r *http.Request) {
 func (s *Server) readMappings() {
 	for {
 		m := <-s.mappings
-		if old, ok := s.urls[m.ShortPath]; ok && old != m.Permalink {
-			glog.Warningf("Overwriting mapping: %v => %v (previously %q)", m.ShortPath, m.Permalink, old)
+
+		if old, exists := s.urls[m.ShortPath]; exists {
+			if m.Permalink == "" {
+				glog.Infof("Deleting mapping: %v", m.ShortPath)
+				delete(s.urls, m.ShortPath)
+			} else if m.Permalink != old {
+				glog.Warningf("Overwriting mapping: %v => %v (previously %q)", m.ShortPath, m.Permalink, old)
+				s.urls[m.ShortPath] = m.Permalink
+			}
 		} else {
 			glog.Infof("New mapping: %-7v => %v", m.ShortPath, m.Permalink)
+			s.urls[m.ShortPath] = m.Permalink
 		}
-		s.urls[m.ShortPath] = m.Permalink
 	}
 }
 
@@ -81,7 +88,8 @@ func (s *Server) AddHandler(h Handler) {
 
 // Mapping represents a mapping between a short URL path and the permalink URL it is for.
 type Mapping struct {
-	// ShortPath is the path of the short URL to be mapped.
+	// ShortPath is the path of the short URL (including leading slash) to
+	// be mapped.
 	ShortPath string
 
 	// Permalink is the destination URL being mapped to.
