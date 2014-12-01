@@ -129,8 +129,6 @@ func loadFiles(base string, mappings chan<- gum.Mapping) {
 		if err != nil {
 			glog.Errorf("error parsing file %q: %v", path, err)
 			return nil
-		} else if len(fileMappings) == 0 {
-			return nil
 		}
 
 		for _, m := range fileMappings {
@@ -172,13 +170,13 @@ func parseFile(r io.Reader) (mappings []gum.Mapping, err error) {
 						altHref = a.Val
 					}
 				}
-				if len(href) > 0 && len(rel) > 0 {
+				if href != "" && rel != "" {
 					for _, v := range strings.Split(rel, " ") {
 						if v == relShortlink {
 							shortlinks = append(shortlinks, href)
 							shortlinks = append(shortlinks, strings.Split(altHref, " ")...)
 						}
-						if v == relCanonical && len(permalink) == 0 {
+						if v == relCanonical && permalink == "" {
 							permalink = href
 						}
 					}
@@ -192,7 +190,7 @@ func parseFile(r io.Reader) (mappings []gum.Mapping, err error) {
 
 	f(doc)
 
-	if len(shortlinks) > 0 && len(permalink) > 0 {
+	if len(shortlinks) > 0 && permalink != "" {
 		for _, link := range shortlinks {
 			shorturl, err := url.Parse(link)
 			if err != nil {
