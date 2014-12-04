@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"willnorris.com/go/gum"
-	"willnorris.com/go/gum/static"
 )
 
 // goxc values
@@ -128,7 +127,7 @@ func main() {
 	}
 
 	if *staticDir != "" {
-		h, err := static.NewHandler(*staticDir)
+		h, err := gum.NewStaticHandler(*staticDir)
 		if err != nil {
 			log.Fatal("error adding static handler: ", err)
 		}

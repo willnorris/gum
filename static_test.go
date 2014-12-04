@@ -4,13 +4,11 @@
 // license that can be found in the LICENSE file or at
 // https://developers.google.com/open-source/licenses/bsd
 
-package static
+package gum
 
 import (
 	"bytes"
 	"testing"
-
-	"willnorris.com/go/gum"
 )
 
 func TestParseFile(t *testing.T) {
@@ -25,12 +23,12 @@ func TestParseFile(t *testing.T) {
 		t.Fatalf("parseFile returned %d mappings, want %d", got, want)
 	}
 
-	want := gum.Mapping{ShortPath: "/s1", Permalink: "/p"}
+	want := Mapping{ShortPath: "/s1", Permalink: "/p"}
 	if got := mappings[0]; got != want {
 		t.Fatalf("parseFile(%q) returned mapping %v, want %v", input, got, want)
 	}
 
-	want = gum.Mapping{ShortPath: "/s2", Permalink: "/p"}
+	want = Mapping{ShortPath: "/s2", Permalink: "/p"}
 	if got := mappings[1]; got != want {
 		t.Fatalf("parseFile(%q) returned mapping %v, want %v", input, got, want)
 	}

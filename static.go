@@ -4,10 +4,7 @@
 // license that can be found in the LICENSE file or at
 // https://developers.google.com/open-source/licenses/bsd
 
-// Package static handles redirects parsed from static HTML files.  Files are
-// parsed and searched for rel="shortlink" and rel="canonical" links.  If both
-// are found, a redirect is registered for the pair.
-package static // import "willnorris.com/go/gum/static"
+package gum
 
 import (
 	"fmt"
@@ -22,7 +19,6 @@ import (
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 	fsnotify "gopkg.in/fsnotify.v1"
-	"willnorris.com/go/gum"
 )
 
 const (
@@ -31,26 +27,28 @@ const (
 	attrAltHref  = "data-alt-href"
 )
 
-// Handler handles short URLs parsed from static HTML files.
-type Handler struct {
+// StaticHandler handles short URLs parsed from static HTML files.  Files are
+// parsed and searched for rel="shortlink" and rel="canonical" links.  If both
+// are found, a redirect is registered for the pair.
+type StaticHandler struct {
 	base    string
 	watcher *fsnotify.Watcher
 }
 
-// NewHandler constructs a new Handler with the specified base path of HTML
-// files.
-func NewHandler(base string) (*Handler, error) {
+// NewStaticHandler constructs a new StaticHandler with the specified base path
+// of HTML files.
+func NewStaticHandler(base string) (*StaticHandler, error) {
 	if stat, err := os.Stat(base); err != nil {
 		return nil, err
 	} else if !stat.IsDir() {
 		return nil, fmt.Errorf("Specified base path %q is not a directory", base)
 	}
 
-	return &Handler{base: base}, nil
+	return &StaticHandler{base: base}, nil
 }
 
-// Mappings implements gum.Handler.
-func (h *Handler) Mappings(mappings chan<- gum.Mapping) {
+// Mappings implements Handler.
+func (h *StaticHandler) Mappings(mappings chan<- Mapping) {
 	loadFiles(h.base, mappings)
 
 	var err error
@@ -105,9 +103,9 @@ func (h *Handler) Mappings(mappings chan<- gum.Mapping) {
 }
 
 // Register is a noop for this handler.
-func (h *Handler) Register(mux *http.ServeMux) {}
+func (h *StaticHandler) Register(mux *http.ServeMux) {}
 
-func loadFiles(base string, mappings chan<- gum.Mapping) {
+func loadFiles(base string, mappings chan<- Mapping) {
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			glog.Errorf("error reading file %q: %v", path, err)
@@ -145,7 +143,7 @@ func loadFiles(base string, mappings chan<- gum.Mapping) {
 
 // parseFile parses r as HTML and returns the URLs of the first links found
 // with the "shortlink" and "canonical" rel values.
-func parseFile(r io.Reader) (mappings []gum.Mapping, err error) {
+func parseFile(r io.Reader) (mappings []Mapping, err error) {
 	var permalink string
 	var shortlinks []string
 
@@ -197,7 +195,7 @@ func parseFile(r io.Reader) (mappings []gum.Mapping, err error) {
 				glog.Errorf("error parsing shortlink %q: %v", link, err)
 			}
 			if path := shorturl.Path; len(path) > 1 {
-				mappings = append(mappings, gum.Mapping{ShortPath: path, Permalink: permalink})
+				mappings = append(mappings, Mapping{ShortPath: path, Permalink: permalink})
 			}
 		}
 	}
