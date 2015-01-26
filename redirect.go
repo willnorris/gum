@@ -79,4 +79,5 @@ func (h *RedirectHandler) Register(mux *http.ServeMux) {
 	mux.Handle("/"+h.Prefix+"/", h)
 }
 
+// Mappings implements the Handler interface.
 func (h *RedirectHandler) Mappings(mappings chan<- Mapping) {}
