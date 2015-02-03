@@ -19,6 +19,8 @@ type Server struct {
 	// ServeMux which handles all incoming requests
 	mux *http.ServeMux
 
+	// mutex is a read/write lock for accessing the urls map
+	mutex sync.RWMutex
 	// map of short URL paths to destinations
 	urls map[string]string
 
@@ -26,9 +28,6 @@ type Server struct {
 	// Handlers can write to this channel to register new mappings; the
 	// Server will read from this channel and handle serving the redirects.
 	mappings chan Mapping
-
-	// mutex is a read/write lock for accessing the urls map
-	mutex sync.RWMutex
 }
 
 // NewServer constructs a new Server.
