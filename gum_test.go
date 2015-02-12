@@ -26,9 +26,9 @@ func TestMappings(t *testing.T) {
 
 	mappings := []*Mapping{
 		nil,
-		&Mapping{Permalink: "/bar"},
-		&Mapping{Permalink: "/baz"},
-		&Mapping{Permalink: ""},
+		{Permalink: "/bar"},
+		{Permalink: "/baz"},
+		{Permalink: ""},
 	}
 
 	for i, m := range mappings {
