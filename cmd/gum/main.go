@@ -26,7 +26,7 @@ var (
 
 // Flags
 var (
-	addr      = flag.String("addr", "localhost:8002", "TCP address to listen on")
+	addr      = flag.String("addr", "localhost:4594", "TCP address to listen on")
 	version   = flag.Bool("version", false, "print version information")
 	staticDir = flag.String("static_dir", "", "directory of static site to setup redirects for")
 	redirects redirectSlice
