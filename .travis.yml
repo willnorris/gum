@@ -1,8 +1,11 @@
 language: go
 
 go:
-  - 1.3
   - 1.4
+  - 1.5
+
+env:
+  - GO15VENDOREXPERIMENT=1
 
 install:
   - mkdir -p "$GOPATH/src/willnorris.com/go"
@@ -10,4 +13,4 @@ install:
   - go get -v -t -d willnorris.com/go/gum/...
 
 script:
-  - go test -v willnorris.com/go/gum/...
+  - go test -v $(go list willnorris.com/go/gum/... | grep -v vendor)
