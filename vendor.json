@@ -8,6 +8,13 @@
 			"local": "vendor/github.com/golang/glog",
 			"revision": "fca8c8854093a154ff1eb580aae10276ad6b1b5f",
 			"revisionTime": "2015-08-01T08:52:21+10:00"
+		},
+		{
+			"canonical": "golang.org/x/net/html",
+			"comment": "",
+			"local": "vendor/golang.org/x/net/html",
+			"revision": "66f0418ca41253f8d1a024eb9754e9441a8e79b9",
+			"revisionTime": "2015-08-17T12:15:29+09:00"
 		}
 	]
 }
