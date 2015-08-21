@@ -15,6 +15,13 @@
 			"local": "vendor/golang.org/x/net/html",
 			"revision": "66f0418ca41253f8d1a024eb9754e9441a8e79b9",
 			"revisionTime": "2015-08-17T12:15:29+09:00"
+		},
+		{
+			"canonical": "golang.org/x/net/html/atom",
+			"comment": "",
+			"local": "vendor/golang.org/x/net/html/atom",
+			"revision": "66f0418ca41253f8d1a024eb9754e9441a8e79b9",
+			"revisionTime": "2015-08-17T12:15:29+09:00"
 		}
 	]
 }
