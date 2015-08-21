@@ -22,6 +22,13 @@
 			"local": "vendor/golang.org/x/net/html/atom",
 			"revision": "66f0418ca41253f8d1a024eb9754e9441a8e79b9",
 			"revisionTime": "2015-08-17T12:15:29+09:00"
+		},
+		{
+			"canonical": "gopkg.in/fsnotify.v1",
+			"comment": "",
+			"local": "vendor/gopkg.in/fsnotify.v1",
+			"revision": "96c060f6a6b7e0d6f75fddd10efeaca3e5d1bcb0",
+			"revisionTime": "2015-02-08T13:29:58-07:00"
 		}
 	]
 }
