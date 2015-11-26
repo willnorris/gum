@@ -3,30 +3,22 @@
 	"ignore": "test",
 	"package": [
 		{
-			"canonical": "github.com/golang/glog",
-			"comment": "",
-			"local": "vendor/github.com/golang/glog",
+			"path": "github.com/golang/glog",
 			"revision": "fca8c8854093a154ff1eb580aae10276ad6b1b5f",
 			"revisionTime": "2015-08-01T08:52:21+10:00"
 		},
 		{
-			"canonical": "golang.org/x/net/html",
-			"comment": "",
-			"local": "vendor/golang.org/x/net/html",
+			"path": "golang.org/x/net/html",
 			"revision": "66f0418ca41253f8d1a024eb9754e9441a8e79b9",
 			"revisionTime": "2015-08-17T12:15:29+09:00"
 		},
 		{
-			"canonical": "golang.org/x/net/html/atom",
-			"comment": "",
-			"local": "vendor/golang.org/x/net/html/atom",
+			"path": "golang.org/x/net/html/atom",
 			"revision": "66f0418ca41253f8d1a024eb9754e9441a8e79b9",
 			"revisionTime": "2015-08-17T12:15:29+09:00"
 		},
 		{
-			"canonical": "gopkg.in/fsnotify.v1",
-			"comment": "",
-			"local": "vendor/gopkg.in/fsnotify.v1",
+			"path": "gopkg.in/fsnotify.v1",
 			"revision": "96c060f6a6b7e0d6f75fddd10efeaca3e5d1bcb0",
 			"revisionTime": "2015-02-08T13:29:58-07:00"
 		}
