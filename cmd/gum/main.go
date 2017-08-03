@@ -123,7 +123,9 @@ func main() {
 		if err != nil {
 			log.Fatal("error adding redirect handler: ", err)
 		}
-		g.AddHandler(h)
+		if err := g.AddHandler(h); err != nil {
+			log.Fatal("error adding redirect handler: ", err)
+		}
 	}
 
 	if *staticDir != "" {
@@ -131,7 +133,9 @@ func main() {
 		if err != nil {
 			log.Fatal("error adding static handler: ", err)
 		}
-		g.AddHandler(h)
+		if err := g.AddHandler(h); err != nil {
+			log.Fatal("error adding static handler: ", err)
+		}
 	}
 
 	server := &http.Server{

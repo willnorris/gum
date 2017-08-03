@@ -48,14 +48,14 @@ func NewStaticHandler(base string) (*StaticHandler, error) {
 }
 
 // Mappings implements Handler.
-func (h *StaticHandler) Mappings(mappings chan<- Mapping) {
+func (h *StaticHandler) Mappings(mappings chan<- Mapping) error {
 	loadFiles(h.base, mappings)
 
 	var err error
 	h.watcher, err = fsnotify.NewWatcher()
 	if err != nil {
 		glog.Errorf("error creating file watcher: %v", err)
-		return
+		return nil
 	}
 
 	go func() {
@@ -100,10 +100,11 @@ func (h *StaticHandler) Mappings(mappings chan<- Mapping) {
 	if err != nil {
 		glog.Errorf("error setting up watchers for %q: %v", h.base, err)
 	}
+	return nil
 }
 
 // Register is a noop for this handler.
-func (h *StaticHandler) Register(mux *http.ServeMux) {}
+func (h *StaticHandler) Register(mux *http.ServeMux) error { return nil }
 
 func loadFiles(base string, mappings chan<- Mapping) {
 	walkFn := func(path string, info os.FileInfo, err error) error {

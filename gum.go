@@ -89,9 +89,14 @@ func (s *Server) readMappings() {
 }
 
 // AddHandler adds the provided Handler to the server.
-func (s *Server) AddHandler(h Handler) {
-	h.Register(s.mux)
-	h.Mappings(s.mappings)
+func (s *Server) AddHandler(h Handler) error {
+	if err := h.Register(s.mux); err != nil {
+		return err
+	}
+	if err := h.Mappings(s.mappings); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Mapping represents a mapping between a short URL path and the permalink URL it is for.
@@ -113,10 +118,10 @@ type Handler interface {
 	// handler to specify the kinds of short URLs it can handle.
 	// Typically, but not always, this will be URLs of the form "/x" and
 	// /x/*" where x is a particular content type.
-	Register(*http.ServeMux)
+	Register(*http.ServeMux) error
 
 	// Mappings provides a write only channel for the handler to write
 	// static Mapping values onto.  These mappings are then registered with
 	// and the redirects handled by the Server.
-	Mappings(chan<- Mapping)
+	Mappings(chan<- Mapping) error
 }
