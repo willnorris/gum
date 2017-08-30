@@ -9,16 +9,19 @@
 			"revisionTime": "2017-05-05T04:36:39Z"
 		},
 		{
+			"checksumSHA1": "vqc3a+oTUGX8PmD0TS+qQ7gmN8I=",
 			"path": "golang.org/x/net/html",
 			"revision": "66f0418ca41253f8d1a024eb9754e9441a8e79b9",
 			"revisionTime": "2015-08-17T12:15:29+09:00"
 		},
 		{
+			"checksumSHA1": "z79z5msRzgU48FCZxSuxfU8b4rs=",
 			"path": "golang.org/x/net/html/atom",
 			"revision": "66f0418ca41253f8d1a024eb9754e9441a8e79b9",
 			"revisionTime": "2015-08-17T12:15:29+09:00"
 		},
 		{
+			"checksumSHA1": "WdaK8ujFuru23syWz1+76oosBiA=",
 			"path": "gopkg.in/fsnotify.v1",
 			"revision": "96c060f6a6b7e0d6f75fddd10efeaca3e5d1bcb0",
 			"revisionTime": "2015-02-08T13:29:58-07:00"
