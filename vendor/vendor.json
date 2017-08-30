@@ -11,20 +11,26 @@
 		{
 			"checksumSHA1": "vqc3a+oTUGX8PmD0TS+qQ7gmN8I=",
 			"path": "golang.org/x/net/html",
-			"revision": "66f0418ca41253f8d1a024eb9754e9441a8e79b9",
-			"revisionTime": "2015-08-17T12:15:29+09:00"
+			"revision": "66aacef3dd8a676686c7ae3716979581e8b03c47",
+			"revisionTime": "2016-09-14T00:11:54Z"
 		},
 		{
 			"checksumSHA1": "z79z5msRzgU48FCZxSuxfU8b4rs=",
 			"path": "golang.org/x/net/html/atom",
-			"revision": "66f0418ca41253f8d1a024eb9754e9441a8e79b9",
-			"revisionTime": "2015-08-17T12:15:29+09:00"
+			"revision": "66aacef3dd8a676686c7ae3716979581e8b03c47",
+			"revisionTime": "2016-09-14T00:11:54Z"
 		},
 		{
-			"checksumSHA1": "WdaK8ujFuru23syWz1+76oosBiA=",
+			"checksumSHA1": "93IzjQY+0dhZtOKGZbdyS50tsKw=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "ab9e364efd8b52800ff7ee48a9ffba4e0ed78dfb",
+			"revisionTime": "2017-08-29T14:47:16Z"
+		},
+		{
+			"checksumSHA1": "eIhF+hmL/XZhzTiAwhLD0M65vlY=",
 			"path": "gopkg.in/fsnotify.v1",
-			"revision": "96c060f6a6b7e0d6f75fddd10efeaca3e5d1bcb0",
-			"revisionTime": "2015-02-08T13:29:58-07:00"
+			"revision": "629574ca2a5df945712d3079857300b5e4da0236",
+			"revisionTime": "2016-10-11T02:33:12Z"
 		}
 	],
 	"rootPath": "willnorris.com/go/gum"
