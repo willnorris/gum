@@ -9,13 +9,14 @@ package gum
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/golang/glog"
+	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 	fsnotify "gopkg.in/fsnotify.v1"
@@ -49,13 +50,14 @@ func NewStaticHandler(base string) (*StaticHandler, error) {
 
 // Mappings implements Handler.
 func (h *StaticHandler) Mappings(mappings chan<- Mapping) error {
-	loadFiles(h.base, mappings)
+	if err := loadFiles(h.base, mappings); err != nil {
+		return err
+	}
 
 	var err error
 	h.watcher, err = fsnotify.NewWatcher()
 	if err != nil {
-		glog.Errorf("error creating file watcher: %v", err)
-		return nil
+		return errors.Wrap(err, "error creating file watcher")
 	}
 
 	go func() {
@@ -69,7 +71,8 @@ func (h *StaticHandler) Mappings(mappings chan<- Mapping) error {
 
 				stat, err := os.Stat(ev.Name)
 				if err != nil {
-					glog.Errorf("Error reading file stats for %q: %v", ev.Name, err)
+					log.Printf("Error reading file stats for %q: %v", ev.Name, err)
+					continue
 				}
 
 				// add watcher for newly created directories
@@ -79,10 +82,12 @@ func (h *StaticHandler) Mappings(mappings chan<- Mapping) error {
 
 				// if event is Create or Write, reload files
 				if ev.Op&(fsnotify.Create|fsnotify.Write) != 0 {
-					loadFiles(ev.Name, mappings)
+					if err := loadFiles(ev.Name, mappings); err != nil {
+						log.Print(err)
+					}
 				}
 			case err := <-h.watcher.Errors:
-				glog.Errorf("Watcher error: %v", err)
+				log.Printf("Watcher error: %v", err)
 			}
 		}
 	}()
@@ -92,13 +97,13 @@ func (h *StaticHandler) Mappings(mappings chan<- Mapping) error {
 		if err == nil && info.IsDir() {
 			err = h.watcher.Add(path)
 			if err != nil {
-				glog.Errorf("error watching path %q: %v", path, err)
+				return errors.Wrapf(err, "error watching path %q", path)
 			}
 		}
 		return nil
 	})
 	if err != nil {
-		glog.Errorf("error setting up watchers for %q: %v", h.base, err)
+		return errors.Wrapf(err, "error setting up watchers for %q", h.base)
 	}
 	return nil
 }
@@ -106,11 +111,10 @@ func (h *StaticHandler) Mappings(mappings chan<- Mapping) error {
 // Register is a noop for this handler.
 func (h *StaticHandler) Register(mux *http.ServeMux) error { return nil }
 
-func loadFiles(base string, mappings chan<- Mapping) {
+func loadFiles(base string, mappings chan<- Mapping) error {
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			glog.Errorf("error reading file %q: %v", path, err)
-			return nil
+			return err
 		}
 		if info.IsDir() || filepath.Ext(path) != ".html" {
 			// skip directories and non-HTML files
@@ -119,15 +123,13 @@ func loadFiles(base string, mappings chan<- Mapping) {
 
 		f, err := os.Open(path)
 		if err != nil {
-			glog.Errorf("error opening file %q: %v", path, err)
-			return nil
+			return err
 		}
 		defer f.Close()
 
 		fileMappings, err := parseFile(f)
 		if err != nil {
-			glog.Errorf("error parsing file %q: %v", path, err)
-			return nil
+			return errors.Wrapf(err, "error parsing file %q", path)
 		}
 
 		for _, m := range fileMappings {
@@ -138,8 +140,9 @@ func loadFiles(base string, mappings chan<- Mapping) {
 
 	err := filepath.Walk(base, walkFn)
 	if err != nil {
-		glog.Errorf("Walk(%q) returned error: %v", base, err)
+		return errors.Wrapf(err, "error walking %q", base)
 	}
+	return nil
 }
 
 // parseFile parses r as HTML and returns the URLs of the first links found
@@ -193,7 +196,7 @@ func parseFile(r io.Reader) (mappings []Mapping, err error) {
 		for _, link := range shortlinks {
 			shorturl, err := url.Parse(link)
 			if err != nil {
-				glog.Errorf("error parsing shortlink %q: %v", link, err)
+				log.Printf("error parsing shortlink %q: %v", link, err)
 			}
 			if path := shorturl.Path; len(path) > 1 {
 				mappings = append(mappings, Mapping{ShortPath: path, Permalink: permalink})

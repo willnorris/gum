@@ -7,11 +7,10 @@
 package gum
 
 import (
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/golang/glog"
 )
 
 // RedirectHandler redirects requests that match a given path component prefix
@@ -74,7 +73,7 @@ func (h *RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Register this handler with the provided ServeMux.
 func (h *RedirectHandler) Register(mux *http.ServeMux) error {
-	glog.Infof("New redirect handler: %v => %v", h.Prefix, h.Destination)
+	log.Printf("New redirect handler: %v => %v", h.Prefix, h.Destination)
 	mux.Handle("/"+h.Prefix, h)
 	mux.Handle("/"+h.Prefix+"/", h)
 	return nil

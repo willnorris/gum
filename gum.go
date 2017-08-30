@@ -8,10 +8,9 @@
 package gum // import "willnorris.com/go/gum"
 
 import (
+	"log"
 	"net/http"
 	"sync"
-
-	"github.com/golang/glog"
 )
 
 // Server is a short URL redirection server.
@@ -74,14 +73,14 @@ func (s *Server) readMappings() {
 		s.mutex.Lock()
 		if old, exists := s.urls[m.ShortPath]; exists {
 			if m.Permalink == "" {
-				glog.Infof("Deleting mapping: %v", m.ShortPath)
+				log.Printf("Deleting mapping: %v", m.ShortPath)
 				delete(s.urls, m.ShortPath)
 			} else if m.Permalink != old {
-				glog.Warningf("Overwriting mapping: %v => %v (previously %q)", m.ShortPath, m.Permalink, old)
+				log.Printf("Overwriting mapping: %v => %v (previously %q)", m.ShortPath, m.Permalink, old)
 				s.urls[m.ShortPath] = m.Permalink
 			}
 		} else {
-			glog.Infof("New mapping: %-7v => %v", m.ShortPath, m.Permalink)
+			log.Printf("New mapping: %-7v => %v", m.ShortPath, m.Permalink)
 			s.urls[m.ShortPath] = m.Permalink
 		}
 		s.mutex.Unlock()
