@@ -1,0 +1,15 @@
+# This is the systemd config I use for https://willnorris.com/
+[Unit]
+Description=Gum Short URL Resolver
+
+[Service]
+User=www-data
+ExecStart=/usr/local/bin/gum \
+    -addr localhost:4594 \
+    -redirect w=/wiki/ \
+    -redirect '+=https://plus.google.com/+willnorris/' \
+    -static_dir /var/www/willnorris.com/public
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
