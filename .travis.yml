@@ -7,5 +7,9 @@ go:
 env:
   - GO111MODULE=on
 
+cache:
+  directories:
+    - "${GOPATH}/pkg/mod/"
+
 go_import_path: willnorris.com/go/gum
 install: true
