@@ -11,6 +11,8 @@ my own site, but everything should be easily usable by others.
 [willnorris.com]: https://willnorris.com/
 [wjn.me]: https://wjn.me/
 
+Building with go 1.11 is recommended.
+
 ## Getting Started ##
 
 Install the package using:

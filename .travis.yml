@@ -1,16 +1,11 @@
 language: go
+sudo: false
 
 go:
-  - 1.4
-  - 1.5
+  - 1.11.x
 
 env:
-  - GO15VENDOREXPERIMENT=1
+  - GO111MODULE=on
 
-install:
-  - mkdir -p "$GOPATH/src/willnorris.com/go"
-  - mv "$TRAVIS_BUILD_DIR" "$GOPATH/src/willnorris.com/go/gum"
-  - go get -v -t -d willnorris.com/go/gum/...
-
-script:
-  - go test -v $(go list willnorris.com/go/gum/... | grep -v vendor)
+go_import_path: willnorris.com/go/gum
+install: true
