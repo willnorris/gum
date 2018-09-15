@@ -1,0 +1,9 @@
+# github.com/pkg/errors v0.0.0-20170505043639-c605e284fe17
+github.com/pkg/errors
+# golang.org/x/net v0.0.0-20170828231752-66aacef3dd8a
+golang.org/x/net/html
+golang.org/x/net/html/atom
+# golang.org/x/sys v0.0.0-20170829185917-ab9e364efd8b
+golang.org/x/sys/unix
+# gopkg.in/fsnotify.v1 v1.4.2
+gopkg.in/fsnotify.v1
