@@ -37,8 +37,6 @@ func NewServer() *Server {
 		mappings: make(chan Mapping),
 	}
 
-	// the default handler serves redirects for registered Mapping values
-	s.mux.HandleFunc("/", s.redirect)
 	go s.readMappings()
 
 	return s
@@ -46,22 +44,25 @@ func NewServer() *Server {
 
 // ServeHTTP implements http.Handler.
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if ok := s.redirect(w, r); ok {
+		return
+	}
+
 	s.mux.ServeHTTP(w, r)
 }
 
 // redirect the request if a matching URL mapping has been configured.  If no
 // mapping is found, a 404 status is returned.
-func (s *Server) redirect(w http.ResponseWriter, r *http.Request) {
+func (s *Server) redirect(w http.ResponseWriter, r *http.Request) bool {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
 	if url, ok := s.urls[r.URL.Path]; ok && url != "" {
 		http.Redirect(w, r, url, http.StatusMovedPermanently)
-		return
+		return true
 	}
 
-	// no redirect found
-	w.WriteHeader(http.StatusNotFound)
+	return false
 }
 
 // readMappings reads values off the s.mappings channel and uses them to

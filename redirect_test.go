@@ -88,6 +88,20 @@ func TestRedirectHandler(t *testing.T) {
 			in: "/x/y", out: "http://example/x/y",
 		},
 
+		// root prefix
+		{
+			prefix: "/", dest: "http://example/",
+			in: "/x", out: "http://example/x",
+		},
+		{
+			prefix: "/", dest: "http://example/",
+			in: "/x/", out: "http://example/x/",
+		},
+		{
+			prefix: "/", dest: "http://example/",
+			in: "/x/y", out: "http://example/x/y",
+		},
+
 		// no destination (redirects to root)
 		{prefix: "x", dest: "", in: "/x", out: "/"},
 		{prefix: "x", dest: "", in: "/x/", out: "/"},

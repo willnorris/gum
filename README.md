@@ -41,8 +41,12 @@ English version of Wikipedia, run:
     gum -redirect "w=https://en.wikipedia.org/wiki/"
 
 Load <http://localhost:4594/w/URL_shortening> and you should be redirected to
-the appropriate Wikipedia article.  The `redirect` flag can be repeated
-multiple times.
+the appropriate Wikipedia article.  An empty prefix or a value of "/" will
+redirect all URLs.
+
+The `redirect` flag can be repeated multiple times.  Longer prefix values will
+take precedence over shorter ones following the behavior of
+[http.ServeMux](https://golang.org/pkg/net/http/#ServeMux).
 
 ### Static File Redirects ###
 
@@ -69,6 +73,8 @@ will automatically load new or updated files.
 Note that when using gum with a static site generator, `static_dir` should
 identify the folder containing the generated HTML files (for example, the
 `_site` folder when using jekyll), not the source files.
+
+Static file redirects will take precedence over equivalent path redirects.
 
 #### Alternate Short URLs ####
 
