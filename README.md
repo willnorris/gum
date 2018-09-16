@@ -1,4 +1,7 @@
-# gum [![Build Status](https://travis-ci.org/willnorris/gum.svg?branch=master)](https://travis-ci.org/willnorris/gum) [![GoDoc](https://godoc.org/willnorris.com/go/gum?status.svg)](https://godoc.org/willnorris.com/go/gum) [![BSD License](https://img.shields.io/badge/license-BSD-blue.svg?style=flat)](LICENSE)
+# gum
+
+[![GoDoc](https://godoc.org/willnorris.com/go/gum?status.svg)](https://godoc.org/willnorris.com/go/gum)
+[![Build Status](https://travis-ci.org/willnorris/gum.svg?branch=master)](https://travis-ci.org/willnorris/gum)
 
 Gum is a personal short URL resolver written in Go.  It is primarily designed
 to be used with statically generated sites.
