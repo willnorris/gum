@@ -15,13 +15,11 @@ import (
 	"willnorris.com/go/gum"
 )
 
-// goxc values
+// govvv values
 var (
-	// VERSION is the version string for gum.
-	VERSION = "HEAD"
-
-	// BUILD_DATE is the timestamp of when gum was built.
-	BUILD_DATE string
+	Version    = "HEAD"
+	GitSummary = "unknown"
+	BuildDate  = "unknown"
 )
 
 // Flags
@@ -108,7 +106,7 @@ func main() {
 	flag.Parse()
 
 	if *version {
-		fmt.Printf("%v\nBuild: %v\n", VERSION, BUILD_DATE)
+		fmt.Printf("%v\nBuild: %v Date: %v\n", Version, GitSummary, BuildDate)
 		return
 	}
 	if port := os.Getenv("PORT"); *addr == "" && port != "" {
@@ -143,7 +141,7 @@ func main() {
 		Handler: g,
 	}
 
-	fmt.Printf("gum (version %v) listening on %s\n", VERSION, server.Addr)
+	fmt.Printf("gum (%v) listening on %s\n", GitSummary, server.Addr)
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
