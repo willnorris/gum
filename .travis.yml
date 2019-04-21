@@ -1,15 +1,24 @@
 language: go
-sudo: false
 
 go:
-  - 1.11.x
+  - "1.x"
+  - "1.11.x"
 
-env:
-  - GO111MODULE=on
+go_import_path: willnorris.com/go/gum
 
 cache:
   directories:
-    - "${GOPATH}/pkg/mod/"
+    - $HOME/.cache/go-build
+    - $HOME/gopath/pkg/mod
 
-go_import_path: willnorris.com/go/gum
-install: true
+env:
+  global:
+    - GO111MODULE=on
+
+script:
+  - diff -u <(echo -n) <(gofmt -d -s .)
+  - go vet ./...
+  - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)
