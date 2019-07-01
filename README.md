@@ -2,6 +2,7 @@
 
 [![GoDoc](https://godoc.org/willnorris.com/go/gum?status.svg)](https://godoc.org/willnorris.com/go/gum)
 [![Build Status](https://travis-ci.org/willnorris/gum.svg?branch=master)](https://travis-ci.org/willnorris/gum)
+[![Test Coverage](https://codecov.io/gh/willnorris/gum/branch/master/graph/badge.svg)](https://codecov.io/gh/willnorris/gum)
 
 Gum is a personal short URL resolver written in Go.  It is primarily designed
 to be used with statically generated sites.
@@ -16,7 +17,7 @@ my own site, but everything should be easily usable by others.
 
 Building with go 1.11 is recommended.
 
-## Getting Started ##
+## Getting Started
 
 Install the package using:
 
@@ -30,7 +31,7 @@ This will start gum on port 4594.  Test this by navigating to
 <http://localhost:4594/> and you should see a blank page (since no redirects
 have been configured yet).
 
-### Path Redirects ###
+### Path Redirects
 
 Path redirects allow a specified path prefix, and all URLs under that prefix,
 to be redirected to a destination URL.  The portion of the URL after the prefix
@@ -51,7 +52,7 @@ The `redirect` flag can be repeated multiple times.  Longer prefix values will
 take precedence over shorter ones following the behavior of
 [http.ServeMux](https://golang.org/pkg/net/http/#ServeMux).
 
-### Static File Redirects ###
+### Static File Redirects
 
 Gum can parse HTML file and automatically register redirects based on the links
 specified in the files.  Gum will look for files with both a `rel="canonical"`
@@ -79,7 +80,7 @@ identify the folder containing the generated HTML files (for example, the
 
 Static file redirects will take precedence over equivalent path redirects.
 
-#### Alternate Short URLs ####
+#### Alternate Short URLs
 
 An HTML file can also specify multiple alternate short URLs to register for a
 given canonical URL.  This is useful, for example, if you have legacy short
@@ -93,7 +94,7 @@ on the `rel="shortlink"` link as a space separated list of URLs in the
 Gum will resolve all of the shortlinks `/t123`, `/b/123`, and `/b/456` to the
 relevant canonical URL.
 
-## License ##
+## License
 
 Gum is copyright Google, but is not an official Google product.  It is
 available under a [BSD License][].
