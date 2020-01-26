@@ -1,6 +1,6 @@
 # gum
 
-[![GoDoc](https://godoc.org/willnorris.com/go/gum?status.svg)](https://godoc.org/willnorris.com/go/gum)
+[![GoDoc](https://img.shields.io/static/v1?label=godoc&message=reference&color=blue)](https://pkg.go.dev/willnorris.com/go/gum)
 [![Test Status](https://github.com/willnorris/gum/workflows/tests/badge.svg)](https://github.com/willnorris/gum/actions?query=workflow%3Atests)
 [![Test Coverage](https://codecov.io/gh/willnorris/gum/branch/master/graph/badge.svg)](https://codecov.io/gh/willnorris/gum)
 
