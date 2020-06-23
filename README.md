@@ -2,7 +2,7 @@
 
 [![GoDoc](https://img.shields.io/static/v1?label=godoc&message=reference&color=blue)](https://pkg.go.dev/willnorris.com/go/gum)
 [![Test Status](https://github.com/willnorris/gum/workflows/tests/badge.svg)](https://github.com/willnorris/gum/actions?query=workflow%3Atests)
-[![Test Coverage](https://codecov.io/gh/willnorris/gum/branch/master/graph/badge.svg)](https://codecov.io/gh/willnorris/gum)
+[![Test Coverage](https://codecov.io/gh/willnorris/gum/branch/main/graph/badge.svg)](https://codecov.io/gh/willnorris/gum)
 
 Gum is a personal short URL resolver written in Go.  It is primarily designed
 to be used with statically generated sites.
