@@ -1,0 +1,9 @@
+linters:
+  enable:
+    - gofmt
+    - goimports
+    - golint
+    - govet
+  disable:
+    # TODO: fix these
+    - errcheck
