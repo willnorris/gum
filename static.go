@@ -16,7 +16,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 	fsnotify "gopkg.in/fsnotify.v1"
@@ -57,7 +56,7 @@ func (h *StaticHandler) Mappings(mappings chan<- Mapping) error {
 	var err error
 	h.watcher, err = fsnotify.NewWatcher()
 	if err != nil {
-		return errors.Wrap(err, "error creating file watcher")
+		return fmt.Errorf("error creating file watcher: %w", err)
 	}
 
 	go func() {
@@ -97,13 +96,13 @@ func (h *StaticHandler) Mappings(mappings chan<- Mapping) error {
 		if err == nil && info.IsDir() {
 			err = h.watcher.Add(path)
 			if err != nil {
-				return errors.Wrapf(err, "error watching path %q", path)
+				return fmt.Errorf("error watching path %q: %w", path, err)
 			}
 		}
 		return nil
 	})
 	if err != nil {
-		return errors.Wrapf(err, "error setting up watchers for %q", h.base)
+		return fmt.Errorf("error setting up watchers for %q: %w", h.base, err)
 	}
 	return nil
 }
@@ -129,7 +128,7 @@ func loadFiles(base string, mappings chan<- Mapping) error {
 
 		fileMappings, err := parseFile(f)
 		if err != nil {
-			return errors.Wrapf(err, "error parsing file %q", path)
+			return fmt.Errorf("error parsing file %q: %w", path, err)
 		}
 
 		for _, m := range fileMappings {
@@ -140,7 +139,7 @@ func loadFiles(base string, mappings chan<- Mapping) error {
 
 	err := filepath.Walk(base, walkFn)
 	if err != nil {
-		return errors.Wrapf(err, "error walking %q", base)
+		return fmt.Errorf("error walking %q: %w", base, err)
 	}
 	return nil
 }
