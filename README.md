@@ -7,13 +7,13 @@
 Gum is a personal short URL resolver written in Go.  It is primarily designed
 to be used with statically generated sites.
 
-This is the URL resolver I run behind [willnorris.com][] (and my short domain
-[wjn.me][]).  For example, [wjn.me/c/gum](https://wjn.me/c/gum) redirects to
-this project on GitHub.  So far, I've only implemented those handlers I use on
-my own site, but everything should be easily usable by others.
+This is the URL resolver I previously ran behind [willnorris.com] (and my short domain [wjn.me]).
+Now I just use [Hugo aliases].
+I no longer active work on this project.
 
 [willnorris.com]: https://willnorris.com/
 [wjn.me]: https://wjn.me/
+[Hugo aliases]: https://gohugo.io/content-management/urls/#aliases
 
 Building with go 1.11 is recommended.
 
